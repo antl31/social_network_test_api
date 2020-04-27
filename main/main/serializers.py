@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-
+from .filters import ShellMessageFilter
 from .models import Post, PostLike
 
 User = get_user_model()
@@ -43,3 +43,5 @@ class PostLikeSerializer(serializers.ModelSerializer):
             'publications',
             'last_updated'
         )
+
+

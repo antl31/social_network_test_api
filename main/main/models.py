@@ -11,6 +11,10 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    def save(self, *args, **kwargs):
+        self.last_updated = timezone.now()
+        super(User, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('User')
@@ -23,13 +27,8 @@ class Post(models.Model):
     created_date = models.DateTimeField(
         default=timezone.now)
 
-    def publish(self):
-        self.published_date = timezone.now
-        self.save()
-
     def __str__(self):
         return f'{self.author} - {self.title}'
-
 
 
 class PostLike(models.Model):
@@ -49,16 +48,10 @@ class PostLike(models.Model):
         like = PostLike.objects.all().filter(user=user_id).filter(publications=post_id)
         user = User.objects.get(id=user_id)
         post = Post.objects.get(id=post_id)
-        print(like)
-        print("B"*80)
         if like:
-            print("Like" * 80)
             like.delete()
-            return 'deleted like'
         else:
-            print("CRETAED" * 80)
-            PostLike.objects.update_or_create(user=user, publications=post)
-            return 'added like'
+            PostLike.objects.create(user=user, publications=post)
 
     @staticmethod
     def total_likes():
