@@ -1,10 +1,13 @@
 from rest_framework import viewsets
+from rest_framework import generics
+from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .models import Post, User, PostLike
-from .serializers import PostSerializer, UserSerializer, PostLikeSerializer,LikesSerializer
-
-from django_filters.rest_framework import DjangoFilterBackend
+from .serializers import PostSerializer, UserSerializer, PostLikeSerializer, AggregateSerializer
+from django.db.models import Q
+from datetime import datetime
+from django.db.models import Count, Sum
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -26,33 +29,33 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     serializer_class = PostLikeSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get(self,*args,**kwargs):
-        serializer = LikesSerializer
-        return Response(serializer.data)
-
-    # like and unlike post
     def create(self, request, *args, **kwargs):
         instance = self.filter_queryset(self.get_queryset())
         post_id = self.request.data['publications']
-        PostLike.like_unlike_post(user_id=self.request.user.id, post_id=int(post_id))
+        post_like = PostLike.like_unlike_post(user_id=self.request.user.id, post_id=int(post_id))
         serializer = self.get_serializer(instance, many=True)
         serializer_data = serializer.data  # get the default serialized data
+        serializer_data.append({"status": post_like})
+        # request.data['status'] = post_like
         return Response(serializer_data)
 
-# class PostServiceViewSet(viewsets.ModelViewSet):
-#     queryset = PostLike.objects.all()
-#     serializer_class = PostLikeSerializer
-#     permission_classes = (AllowAny,)
-#
-#     def create(self, request, *args, **kwargs):
-#         instance = self.filter_queryset(self.get_queryset())
-#         serializer = self.get_serializer(instance, many=True)
-#         serializer_data = serializer.data
-#         serializer_data.append({"number_of_likes": int(PostLike.total_likes())})
-#         return Response(serializer_data)
 
-class LikesServiceView(viewsets.ModelViewSet):
-    serializer_class = PostLikeSerializer
-    queryset = PostLike.objects.all()
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = BookFilter
+class PostServiceViewSet(viewsets.ModelViewSet):
+    serializer_class = AggregateSerializer
+    model = PostLike
+    # queryset = PostLike.objects.annotate(likes= Count('publications_id')).values('likes','last_updated',).order_by('last_updated',)
+    queryset = PostLike.objects.values('last_updated').annotate(likes=Count('last_updated'))
+    # def list(self, request, *args, **kwargs):
+    #     if request.query_params.get('date_from', None) and request.query_params.get('date_to', None):
+    #         quryset_data = {'last_updated_before': request.query_params['date_to'],
+    #                         'last_updated_after': request.query_params['date_from']}
+    #         serializer = PostLikeSerializer(F(quryset_data).qs, many=True)
+    #     elif request.query_params.get('date_from', None):
+    #         quryset_data = {'last_updated_after': request.query_params['date_from']}
+    #         serializer = PostLikeSerializer(F(quryset_data).qs, many=True)
+    #     elif request.query_params.get('date_to', None):
+    #         quryset_data = {'last_updated_before': request.query_params['date_to']}
+    #         serializer = PostLikeSerializer(F(quryset_data).qs, many=True)
+    #     else:
+    #         serializer = PostLikeSerializer(self.get_queryset(), many=True)
+    #     return Response(serializer.data)

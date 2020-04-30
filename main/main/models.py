@@ -35,7 +35,7 @@ class PostLike(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     publications = models.ForeignKey(Post, related_name='Post_id', on_delete=models.CASCADE)
-    last_updated = models.DateTimeField(default=timezone.now)
+    last_updated = models.DateField(default=timezone.now)
 
     class Meta:
         unique_together = ['user', 'publications']

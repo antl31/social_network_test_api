@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import make_password
-from .filters import ShellMessageFilter
+from django_filters import DateFromToRangeFilter, FilterSet
 from .models import Post, PostLike
 
 User = get_user_model()
@@ -45,3 +44,25 @@ class PostLikeSerializer(serializers.ModelSerializer):
         )
 
 
+class AggregateSerializer(serializers.Serializer):
+    likes = serializers.IntegerField()
+    # publications = serializers.IntegerField()
+    last_updated = serializers.DateField()
+    # user = serializers.CharField()
+
+    class Meta:
+        model = PostLike
+        read_only_fields = ('user',)
+        fields = (
+            'user',
+            'publications',
+            'last_updated'
+        )
+
+
+class F(FilterSet):
+    last_updated = DateFromToRangeFilter()
+
+    class Meta:
+        model = PostLike
+        fields = ['user', 'publications', 'last_updated']
