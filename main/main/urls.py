@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
-from .views import PostViewSet,UserViewSet, PostLikeViewSet
+from .views import PostViewSet,UserViewSet, PostLikeViewSet,PostServiceViewSet,UserActivityViewSet
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -28,6 +28,8 @@ router = DefaultRouter()
 router.register(r'posts', PostViewSet)
 router.register(r'users', UserViewSet)
 router.register(r'likes', PostLikeViewSet)
+router.register(r'service', PostServiceViewSet)
+router.register(r'user_activity', UserActivityViewSet)
 
 # URLs настраиваются автоматически роутером
 

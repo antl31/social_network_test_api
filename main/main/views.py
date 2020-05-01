@@ -1,13 +1,13 @@
 from rest_framework import viewsets
-from rest_framework import generics
-from rest_framework import views
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
 from .models import Post, User, PostLike
-from .serializers import PostSerializer, UserSerializer, PostLikeSerializer, AggregateSerializer
-from django.db.models import Q
-from datetime import datetime
-from django.db.models import Count, Sum
+from .filters import F
+from .serializers import PostSerializer, UserSerializer, PostLikeSerializer, AggregateSerializer,UserActivitySerializer
+
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Count
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -43,19 +43,15 @@ class PostLikeViewSet(viewsets.ModelViewSet):
 class PostServiceViewSet(viewsets.ModelViewSet):
     serializer_class = AggregateSerializer
     model = PostLike
-    # queryset = PostLike.objects.annotate(likes= Count('publications_id')).values('likes','last_updated',).order_by('last_updated',)
-    queryset = PostLike.objects.values('last_updated').annotate(likes=Count('last_updated'))
-    # def list(self, request, *args, **kwargs):
-    #     if request.query_params.get('date_from', None) and request.query_params.get('date_to', None):
-    #         quryset_data = {'last_updated_before': request.query_params['date_to'],
-    #                         'last_updated_after': request.query_params['date_from']}
-    #         serializer = PostLikeSerializer(F(quryset_data).qs, many=True)
-    #     elif request.query_params.get('date_from', None):
-    #         quryset_data = {'last_updated_after': request.query_params['date_from']}
-    #         serializer = PostLikeSerializer(F(quryset_data).qs, many=True)
-    #     elif request.query_params.get('date_to', None):
-    #         quryset_data = {'last_updated_before': request.query_params['date_to']}
-    #         serializer = PostLikeSerializer(F(quryset_data).qs, many=True)
-    #     else:
-    #         serializer = PostLikeSerializer(self.get_queryset(), many=True)
-    #     return Response(serializer.data)
+    queryset = PostLike.objects.values('last_updated').filter(last_updated__gte='2020-04-28').annotate(likes=Count('last_updated'))
+    filter_backends = [DjangoFilterBackend]
+    filter_class = F
+
+
+class UserActivityViewSet(viewsets.ModelViewSet):
+    serializer_class = UserActivitySerializer
+    model = User
+    queryset = User.objects.all().values('username','last_login', 'last_updated')
+
+
+

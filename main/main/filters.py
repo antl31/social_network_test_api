@@ -1,10 +1,10 @@
-import django_filters
+from django_filters import FilterSet,DateFilter
 from .models import PostLike
 
 
-class ShellMessageFilter(django_filters.FilterSet):
-    date_from = django_filters.DateTimeFilter(lookup_expr="gte")
-    date_to = django_filters.DateTimeFilter(lookup_expr='lte')
+class F(FilterSet):
+    date_to = DateFilter(field_name='last_updated', lookup_expr='lte', )
+    date_from = DateFilter(field_name='last_updated', lookup_expr='gte')
 
     class Meta:
         model = PostLike

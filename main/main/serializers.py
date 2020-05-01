@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from django_filters import DateFromToRangeFilter, FilterSet
+from django_filters import DateFilter, FilterSet
 from .models import Post, PostLike
 
 User = get_user_model()
@@ -46,9 +46,7 @@ class PostLikeSerializer(serializers.ModelSerializer):
 
 class AggregateSerializer(serializers.Serializer):
     likes = serializers.IntegerField()
-    # publications = serializers.IntegerField()
     last_updated = serializers.DateField()
-    # user = serializers.CharField()
 
     class Meta:
         model = PostLike
@@ -60,9 +58,14 @@ class AggregateSerializer(serializers.Serializer):
         )
 
 
-class F(FilterSet):
-    last_updated = DateFromToRangeFilter()
+class UserActivitySerializer(serializers.Serializer):
+    username = serializers.CharField()
+    last_login = serializers.DateTimeField()
+    last_updated = serializers.DateTimeField()
 
     class Meta:
-        model = PostLike
-        fields = ['user', 'publications', 'last_updated']
+        model = User
+        fields = (
+            'last_login',
+            'last_updated'
+        )
