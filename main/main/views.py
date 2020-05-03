@@ -47,11 +47,33 @@ class PostServiceViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filter_class = F
 
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        user.save()
+        super(PostServiceViewSet, self).create(*args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        user.save()
+        return super(PostServiceViewSet, self).list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        user.save()
+        super(PostServiceViewSet, self).retrieve(request,*args, **kwargs)
+
 
 class UserActivityViewSet(viewsets.ModelViewSet):
     serializer_class = UserActivitySerializer
     model = User
-    queryset = User.objects.all().values('username','last_login', 'last_updated')
+    queryset = User.objects.all().values('username', 'last_login', 'last_updated')
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        user.save()
+        return super(UserActivityViewSet, self).list(request, *args, **kwargs)
+
+
 
 
 

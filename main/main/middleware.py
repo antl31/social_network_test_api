@@ -36,10 +36,11 @@ class LastUpdate(object):
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        request.user = authentication.JWTAuthentication().authenticate(request)[0]  # Manually authenticate the token
+
+        # request.user = authentication.JWTAuthentication().authenticate(request)[0]  # Manually authenticate the token
         print('A'*80)
         user = request.user
         if user.is_authenticated:
-            print("A" * 80)
+            print("UPDATED"*15)
             user.last_updated = datetime.now()
             user.save()

@@ -25,11 +25,11 @@ from rest_framework_simplejwt.views import (
 )
 
 router = DefaultRouter()
-router.register(r'posts', PostViewSet)
-router.register(r'users', UserViewSet)
-router.register(r'likes', PostLikeViewSet)
-router.register(r'service', PostServiceViewSet)
-router.register(r'user_activity', UserActivityViewSet)
+router.register(r'posts', PostViewSet) # get posts
+router.register(r'users', UserViewSet) # get post
+router.register(r'likes', PostLikeViewSet) #post
+router.register(r'service', PostServiceViewSet) #get
+router.register(r'user_activity', UserActivityViewSet) #get
 
 # URLs настраиваются автоматически роутером
 
