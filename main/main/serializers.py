@@ -39,8 +39,7 @@ class PostLikeSerializer(serializers.ModelSerializer):
         fields = (
             'user',
             'publications',
-            'last_updated'
-        )
+            'last_updated',)
 
 
 class AggregateSerializer(serializers.Serializer):

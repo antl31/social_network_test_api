@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
-from .views import PostViewSet,UserViewSet, PostLikeViewSet,PostServiceViewSet,UserActivityViewSet
+from .views import PostViewSet, UserViewSet, PostLikeViewSet, PostServiceViewSet, UserActivityViewSet
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -25,13 +25,11 @@ from rest_framework_simplejwt.views import (
 )
 
 router = DefaultRouter()
-router.register(r'posts', PostViewSet) # get posts
-router.register(r'users', UserViewSet) # get post
-router.register(r'likes', PostLikeViewSet) #post
-router.register(r'service', PostServiceViewSet) #get
-router.register(r'user_activity', UserActivityViewSet) #get
-
-# URLs настраиваются автоматически роутером
+router.register(r'posts', PostViewSet)  # get posts
+router.register(r'users', UserViewSet)  # get post
+router.register(r'likes', PostLikeViewSet)  # post
+router.register(r'service', PostServiceViewSet)  # get
+router.register(r'user_activity', UserActivityViewSet)  # get
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,4 +37,3 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh')
 ]
-

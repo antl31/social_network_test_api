@@ -22,7 +22,7 @@ class User(AbstractUser):
 
 class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, unique=True)
     text = models.TextField()
     created_date = models.DateTimeField(
         default=timezone.now)
@@ -50,9 +50,7 @@ class PostLike(models.Model):
         post = Post.objects.get(id=post_id)
         if like:
             like.delete()
+            return "Disliked"
         else:
             PostLike.objects.create(user=user, publications=post)
-
-    @staticmethod
-    def total_likes():
-        return PostLike.objects.all().count()
+            return "Liked"
