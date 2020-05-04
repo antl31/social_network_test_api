@@ -8,14 +8,31 @@ from .serializers import PostSerializer, UserSerializer, PostLikeSerializer, Agg
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
+from rest_framework import mixins
 
 
-class UserViewSet(viewsets.ModelViewSet):
+from rest_framework import permissions
+class IsAnonCreate(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            return True
+
+        elif request.user.is_anonymous and request.method != "POST":
+            return False
+        elif request.method in permissions.SAFE_METHODS:
+            return True
+
+class UserViewSet(mixins.CreateModelMixin,
+                  mixins.ListModelMixin,
+                  viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes =  (IsAnonCreate,)
 
 
-class PostViewSet(viewsets.ModelViewSet):
+class PostViewSet(mixins.CreateModelMixin,
+                  mixins.ListModelMixin,
+                  viewsets.GenericViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (AllowAny,)
@@ -23,11 +40,25 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        user.save()
+        super(PostViewSet, self).create(request,*args, **kwargs)
 
-class PostLikeViewSet(viewsets.ModelViewSet):
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        user.save()
+        return super(PostViewSet, self).list(request, *args, **kwargs)
+
+
+class PostLikeViewSet(mixins.CreateModelMixin,
+                  viewsets.GenericViewSet):
     queryset = PostLike.objects.all()
     serializer_class = PostLikeSerializer
     permission_classes = (IsAuthenticated,)
+
+
+
 
     def create(self, request, *args, **kwargs):
         instance = self.filter_queryset(self.get_queryset())
@@ -36,7 +67,6 @@ class PostLikeViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, many=True)
         serializer_data = serializer.data  # get the default serialized data
         serializer_data.append({"status": post_like})
-        # request.data['status'] = post_like
         return Response(serializer_data)
 
 
@@ -56,11 +86,6 @@ class PostServiceViewSet(viewsets.ModelViewSet):
         user = request.user
         user.save()
         return super(PostServiceViewSet, self).list(request, *args, **kwargs)
-
-    def retrieve(self, request, *args, **kwargs):
-        user = request.user
-        user.save()
-        super(PostServiceViewSet, self).retrieve(request,*args, **kwargs)
 
 
 class UserActivityViewSet(viewsets.ModelViewSet):

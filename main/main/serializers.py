@@ -29,7 +29,6 @@ class PostSerializer(serializers.ModelSerializer):
             'title',
             'text',
             'created_date',
-            'total_likes'
         )
 
 
