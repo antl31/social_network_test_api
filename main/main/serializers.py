@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from django_filters import DateFilter, FilterSet
+
 from .models import Post, PostLike
 
 User = get_user_model()
