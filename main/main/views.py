@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import Post, User, PostLike
 from .filters import F
-from .serializers import PostSerializer, UserSerializer, PostLikeSerializer, AggregateSerializer,UserActivitySerializer
+from .serializers import PostSerializer, UserSerializer, PostLikeSerializer, AggregateSerializer, UserActivitySerializer
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
@@ -21,6 +21,7 @@ class IsAnonCreate(permissions.BasePermission):
             return False
         elif request.method in permissions.SAFE_METHODS:
             return True
+
 
 class UserViewSet(mixins.CreateModelMixin,
                   mixins.ListModelMixin,
@@ -58,8 +59,6 @@ class PostLikeViewSet(mixins.CreateModelMixin,
     permission_classes = (IsAuthenticated,)
 
 
-
-
     def create(self, request, *args, **kwargs):
         instance = self.filter_queryset(self.get_queryset())
         post_id = self.request.data['publications']
@@ -73,7 +72,7 @@ class PostLikeViewSet(mixins.CreateModelMixin,
 class PostServiceViewSet(viewsets.ModelViewSet):
     serializer_class = AggregateSerializer
     model = PostLike
-    queryset = PostLike.objects.values('last_updated').filter(last_updated__gte='2020-04-28').annotate(likes=Count('last_updated'))
+    queryset = PostLike.objects.values('last_updated').annotate(likes=Count('last_updated'))
     filter_backends = [DjangoFilterBackend]
     filter_class = F
 
